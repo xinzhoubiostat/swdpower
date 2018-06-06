@@ -1,0 +1,8 @@
+I =      12
+J =       3
+K =      90
+Baseline effect :      0.180
+Treatment effect :     -0.050
+Time effect :     -0.010
+ICC :      0.010
+POWER =      0.539

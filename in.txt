@@ -1,0 +1,23 @@
+# parameters used in the program
+
+# number of clusters
+I = 12
+
+# number of time steps
+J = 3
+
+# number of participants at each time step from every cluster
+K = 90
+
+# baseline effect
+mu = 0.18
+
+# treatment effect
+beta = -0.05
+
+# time effect (total change over the study period)
+# assume that time effects are linear across time steps
+delta = -0.01
+
+# ICC for participants at first time steps
+ICC = 0.01
