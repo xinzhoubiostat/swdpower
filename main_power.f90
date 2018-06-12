@@ -24,8 +24,10 @@ program main
     ! mincomp is a JJ+2 vector of 0 and 1's, representing the weights of gamma(1),...,gamma(JJ),mu,beta 
     ! maxcomp is a JJ+2 vector of 0 and 1's, representing the weights of gamma(1),...,gamma(JJ),mu,beta
     integer, dimension (:), allocatable :: mincomp, maxcomp  
-    double precision, external :: LinearPower
+    double precision, external :: LinearPower_time
+    double precision, external :: LinearPower_notime
     integer :: convergence
+    double precision, parameter :: TOLERANCE = 1e-5      ! tolerance
     
     integer :: i, j, k, l
     
@@ -87,8 +89,9 @@ program main
         do j=2,JJ
             p0(j) = p0(j-1) + p0stepchange
         end do
-    
-            call computeparameter(JJ, mu, beta, gamma, tau2, p0, p11, rho0)
+        call computeparameter(JJ, mu, beta, gamma, tau2, p0, p11, rho0)
+        
+        if (p0totalchange > TOLERANCE .or. p0totalchange < -TOLERANCE) then
             a = 100 
             b = -100
             do j=1,JJ
@@ -125,7 +128,21 @@ program main
             b = 1-b
             call legendre_handle (GQ, a, b, GQX, GQW)
             ! Gaussian Legendre will not take two limits, a and b
-            power = LinearPower(mu, beta, gamma, tau2, II, JJ, KK, a, b, mincomp, maxcomp, GQ, GQX, GQW)
+            power = LinearPower_time(mu, beta, gamma, tau2, II, JJ, KK, a, b, mincomp, maxcomp, GQ, GQX, GQW)
+        else
+            if (beta>0) then
+                a = - mu
+                b = 1 - mu - beta
+            else
+                a = - mu - beta
+                b = 1 - mu
+            end if
+            ! a = a / dsqrt(2.0d0*tau2)
+            ! b = b / dsqrt(2.0d0*tau2)
+            call legendre_handle (GQ, a, b, GQX, GQW)
+            ! Gaussian Legendre will not take two limits, a and b
+            power = LinearPower_notime(mu, beta, tau2, II, JJ, KK, a, b, GQ, GQX, GQW)
+        end if
 
         open(unit=RESULTS,file=result_filename,status='replace')
         write (RESULTS, '(a, i7)'), 'I = ', II
